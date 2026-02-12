@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DCC DA Practice Quiz</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--r:#EE2E24;--b:#000;--g:#75787B;--lg:#f5f5f5;--bg:#e0e0e0;--t1:#1a1a1a;--t2:#666;--ok:#10b981}
+body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sans-serif;background:linear-gradient(135deg,#f8f9fa,#e9ecef);min-height:100vh;color:var(--t1);line-height:1.6}
+.page{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+.card{background:#fff;border-radius:32px;padding:48px;max-width:600px;width:100%;box-shadow:0 24px 48px rgba(0,0,0,.08);animation:su .6s ease-out}
+.logo{display:flex;justify-content:center;margin-bottom:32px}
+.logo svg{width:280px;height:auto}
+.logo-sm{display:flex;justify-content:center;margin-bottom:20px}
+.logo-sm svg{width:140px;height:auto}
+h1.title{font-size:40px;font-weight:900;text-align:center;margin-bottom:16px;color:var(--g);letter-spacing:-.03em}
+h1.title-sm{font-size:28px;font-weight:900;text-align:center;margin-bottom:6px;color:var(--g)}
+.subtitle{font-size:15px;color:var(--t2);text-align:center;margin-bottom:28px}
+.footer{margin-top:24px;padding-top:20px;border-top:1px solid #e5e7eb;text-align:center;font-size:11px;color:#9ca3af}
+.ig{margin-bottom:24px}
+.ig input{width:100%;padding:18px;border:2px solid var(--bg);border-radius:14px;font-size:17px;font-weight:500;background:#fafafa;text-align:center;transition:.2s}
+.ig input:focus{outline:none;border-color:var(--r);background:#fff;box-shadow:0 0 0 4px rgba(238,46,36,.08)}
+.ig input.err{border-color:var(--r);background:#fff5f5}
+.errmsg{font-size:13px;color:var(--r);font-weight:600;margin-top:8px;text-align:center;display:none}
+.errmsg.vis{display:block}
+.btn-go{width:100%;padding:20px;background:linear-gradient(135deg,var(--r),#d42620);color:#fff;border:none;border-radius:14px;font-size:19px;font-weight:800;cursor:pointer;transition:.3s;box-shadow:0 8px 20px rgba(238,46,36,.25)}
+.btn-go:hover{transform:translateY(-3px);box-shadow:0 12px 28px rgba(238,46,36,.35)}
+.btn-back{width:100%;padding:14px;background:transparent;color:var(--t2);border:2px solid var(--bg);border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;margin-top:8px}
+.btn-back:hover{background:var(--lg)}
+/* Mode cards */
+.modes{display:flex;flex-direction:column;gap:16px;margin-bottom:20px}
+.mc{background:#fff;border:2px solid var(--bg);border-radius:16px;padding:22px;cursor:pointer;transition:.2s;display:flex;align-items:center;gap:18px}
+.mc:hover{border-color:var(--r);box-shadow:0 4px 16px rgba(238,46,36,.1);transform:translateY(-2px)}
+.mc-icon{width:48px;height:48px;min-width:48px;border-radius:12px;display:flex;align-items:center;justify-content:center}
+.mc-icon svg{width:24px;height:24px}
+.mc-s{background:#f0f0f0}.mc-s svg{fill:var(--g)}
+.mc-q{background:#fff5f5}.mc-q svg{fill:var(--r)}
+.mc-info{flex:1}
+.mc-t{font-size:16px;font-weight:800;color:var(--t1);margin-bottom:3px}
+.mc-d{font-size:13px;color:var(--t2);line-height:1.4}
+.mc-arr{color:var(--bg);font-size:20px;font-weight:700}.mc:hover .mc-arr{color:var(--r)}
+/* Quiz pages */
+.qp{display:none;min-height:100vh;padding:20px;padding-bottom:100px}
+.qp.active{display:block}
+.qc{max-width:900px;margin:0 auto}
+.qh{background:#fff;padding:20px 24px;border-radius:16px;margin-bottom:20px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.hrow{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.htitle{font-size:20px;font-weight:800;color:var(--g)}
+.einfo{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--t2)}
+.einfo svg{width:16px;height:16px;fill:var(--g)}
+.bl{padding:8px 16px;background:transparent;color:var(--r);border:1.5px solid var(--r);border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;margin-left:8px}
+.bl:hover{background:var(--r);color:#fff}
+.pi{display:flex;justify-content:space-between;font-size:13px;font-weight:600;color:var(--t2);margin-bottom:6px}
+.pb{height:6px;background:var(--lg);border-radius:10px;overflow:hidden;margin-bottom:14px}
+.pf{height:100%;background:var(--r);border-radius:10px;transition:width .5s}
+.ctrl{display:flex;gap:12px;flex-wrap:wrap}
+.btn{padding:12px 20px;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:8px;transition:.2s}
+.btn svg{width:16px;height:16px}
+.btn-p{background:var(--r);color:#fff;box-shadow:0 2px 8px rgba(238,46,36,.25)}
+.btn-p:hover{background:#d42620;transform:translateY(-1px)}
+/* Study cards */
+.sc{background:#fff;padding:28px;border-radius:18px;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,.06);border:2px solid transparent;transition:.2s}
+.sc:hover{box-shadow:0 4px 16px rgba(0,0,0,.1)}
+.sc.mw{background:#fff5f5;border-color:var(--r);border-left-width:6px}
+.qnum{display:inline-block;font-size:11px;font-weight:800;color:var(--r);background:#fff5f5;padding:4px 10px;border-radius:6px;margin-bottom:12px;letter-spacing:.5px}
+.qtxt{font-size:18px;font-weight:700;margin-bottom:16px;line-height:1.5}
+.ainp{width:100%;min-height:100px;padding:14px 18px;border:2px solid var(--bg);border-radius:12px;font-size:15px;font-family:inherit;resize:vertical;margin-bottom:14px;background:var(--lg)}
+.ainp:focus{outline:none;border-color:var(--r);background:#fff;box-shadow:0 0 0 3px rgba(238,46,36,.1)}
+.cbtns{display:flex;gap:10px}
+.cb{flex:1;padding:12px 16px;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:.2s}
+.cb svg{width:16px;height:16px}
+.rb{background:var(--b);color:#fff}.rb:hover{background:#333}
+.mb{background:#fff;color:var(--r);border:2px solid var(--r)}.mb:hover{background:#fff5f5}
+.mb.mk{background:var(--r);color:#fff}
+.ca{display:none;margin-top:16px;padding:16px 20px;background:#f0fdf4;border-radius:10px;border-left:5px solid var(--ok);animation:sd .3s}
+.ca.show{display:block}
+.ca strong{display:block;color:#065f46;font-size:12px;font-weight:800;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px}
+.ca .atxt{color:#064e3b;line-height:1.7;white-space:pre-wrap;font-size:14px}
+.btally{background:#fff;padding:18px;border-radius:14px;margin-top:24px;box-shadow:0 2px 8px rgba(0,0,0,.06);border:2px solid var(--bg);text-align:center;font-size:15px;color:var(--t2)}
+.btally strong{color:var(--r);font-size:18px;font-weight:800}
+/* MCQ styles */
+.mcqc{background:#fff;padding:24px;border-radius:16px;margin-bottom:14px;box-shadow:0 2px 8px rgba(0,0,0,.06);border:2px solid transparent}
+.mcqc.ans{border-color:#e0e0e0}
+.mcqopts{display:flex;flex-direction:column;gap:8px}
+.mcqo{padding:14px 16px;border:2px solid var(--bg);border-radius:12px;cursor:pointer;transition:.15s;font-size:15px;display:flex;align-items:flex-start;gap:12px;line-height:1.4}
+.mcqo:hover{border-color:var(--r);background:#fff5f5}
+.mcqo.sel{border-color:var(--r);background:#fff5f5;font-weight:600}
+.mcql{min-width:28px;height:28px;border-radius:8px;background:var(--lg);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:var(--t2);flex-shrink:0}
+.mcqo.sel .mcql{background:var(--r);color:#fff}
+.mcqo.cp{border-color:var(--ok);background:#f0fdf4;pointer-events:none}
+.mcqo.cp .mcql{background:var(--ok);color:#fff}
+.mcqo.wp{border-color:var(--r);background:#fff5f5;pointer-events:none}
+.mcqo.wp .mcql{background:var(--r);color:#fff}
+.mcqo.cnp{border-color:var(--ok);background:#f0fdf4;pointer-events:none}
+.mcqo.cnp .mcql{background:var(--ok);color:#fff}
+.mcqo.rd{pointer-events:none;opacity:.5}
+.mcqexp{display:none;margin-top:12px;padding:14px 18px;border-radius:10px;font-size:14px;line-height:1.6;animation:sd .3s}
+.mcqexp.show{display:block}
+.mcqexp.ce{background:#f0fdf4;border-left:4px solid var(--ok);color:#065f46}
+.mcqexp.we{background:#fff5f5;border-left:4px solid var(--r);color:#7f1d1d}
+.mcqexp strong{display:block;margin-bottom:4px;font-size:11px;text-transform:uppercase;letter-spacing:.5px}
+/* Score */
+.sscrn{text-align:center;padding:40px 20px}
+.scirc{width:150px;height:150px;border-radius:50%;margin:0 auto 20px;display:flex;flex-direction:column;align-items:center;justify-content:center;border:6px solid}
+.scirc.pass{border-color:var(--ok);background:#f0fdf4}
+.scirc.fail{border-color:var(--r);background:#fff5f5}
+.spct{font-size:40px;font-weight:900;line-height:1}
+.scirc.pass .spct{color:#065f46}
+.scirc.fail .spct{color:var(--r)}
+.slbl{font-size:13px;font-weight:600;color:var(--t2);margin-top:4px}
+.sdet{font-size:17px;color:var(--t2);margin-bottom:6px}
+.smsg{font-size:14px;color:var(--t2);margin-bottom:24px}
+.sbtns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.rdiv{margin:28px 0 20px;padding-top:20px;border-top:2px solid var(--bg);font-size:17px;font-weight:800;color:var(--g);text-align:center}
+.sbar{position:fixed;bottom:0;left:0;right:0;background:#fff;padding:14px 24px;box-shadow:0 -4px 16px rgba(0,0,0,.1);display:flex;align-items:center;justify-content:center;gap:16px;z-index:50}
+.sbar-t{font-size:14px;font-weight:600;color:var(--t2)}
+.btn-sub{padding:14px 36px;background:linear-gradient(135deg,var(--r),#d42620);color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:800;cursor:pointer;box-shadow:0 4px 12px rgba(238,46,36,.25);transition:.2s}
+.btn-sub:hover{transform:translateY(-2px)}
+.btn-sub:disabled{opacity:.5;cursor:not-allowed;transform:none}
+@keyframes su{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+@keyframes sd{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:640px){
+.card{padding:36px 24px 24px}
+h1.title{font-size:32px}
+.logo svg{width:240px}
+.qh{padding:16px}
+.hrow{flex-direction:column;gap:8px;align-items:flex-start}
+.sc,.mcqc{padding:20px 16px}
+.qtxt,.mcqc .qtxt{font-size:16px}
+.cbtns{flex-direction:column}
+.ctrl{flex-direction:column}
+.btn{width:100%;justify-content:center}
+.sbtns{flex-direction:column}.sbtns .btn{width:100%;justify-content:center}
+.mc{padding:18px 14px}
+}
+</style>
+</head>
+<body>
+<!-- Page 1: Login -->
+<div class="page" id="p1">
+<div class="card">
+<div class="logo"><svg width="280" height="160" viewBox="0 0 500 400" xmlns="http://www.w3.org/2000/svg"><path d="M140 230 L170 80 L225 80 L195 230 Z" fill="#EE2E24"/><path d="M205 230 L245 10 L305 10 L265 230 Z" fill="#000"/><text x="135" y="285" font-family="Arial" font-weight="900" font-size="64" fill="#75787B" letter-spacing="-1">Dufferin</text><text x="138" y="318" font-family="Arial" font-weight="bold" font-size="32" fill="#75787B">Construction</text><text x="138" y="345" font-family="Arial" font-weight="bold" font-size="16" fill="#000">A CRH COMPANY</text></svg></div>
+<h1 class="title">DA Exam Prep</h1>
+<div class="ig"><input type="text" id="empNum" placeholder="Enter Employee Number" autocomplete="off" inputmode="numeric" maxlength="5" oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,5);document.getElementById('ee').classList.remove('vis');this.classList.remove('err')"><div id="ee" class="errmsg">Please enter a valid 5-digit employee number</div></div>
+<button class="btn-go" onclick="goP2()">Continue</button>
+<div class="footer">This practice quiz is an internal Dufferin Construction training tool and is not developed or endorsed by the GTAA.</div>
+</div></div>
+
+<!-- Page 2: Mode Select -->
+<div class="page" id="p2" style="display:none">
+<div class="card">
+<div class="logo-sm"><svg width="140" height="90" viewBox="0 0 500 400" xmlns="http://www.w3.org/2000/svg"><path d="M140 230 L170 80 L225 80 L195 230 Z" fill="#EE2E24"/><path d="M205 230 L245 10 L305 10 L265 230 Z" fill="#000"/><text x="135" y="285" font-family="Arial" font-weight="900" font-size="64" fill="#75787B" letter-spacing="-1">Dufferin</text><text x="138" y="318" font-family="Arial" font-weight="bold" font-size="32" fill="#75787B">Construction</text><text x="138" y="345" font-family="Arial" font-weight="bold" font-size="16" fill="#000">A CRH COMPANY</text></svg></div>
+<h1 class="title-sm">DA Exam Prep</h1>
+<p class="subtitle">Choose how you want to prepare for your DA test.</p>
+<div class="modes">
+<div class="mc" onclick="startStudy()"><div class="mc-icon mc-s"><svg viewBox="0 0 24 24"><path d="M21 5c-1.11-.35-2.33-.5-3.5-.5-1.95 0-4.05.4-5.5 1.5-1.45-1.1-3.55-1.5-5.5-1.5S2.45 4.9 1 6v14.65c0 .25.25.5.5.5.1 0 .15-.05.25-.05C3.1 20.45 5.05 20 6.5 20c1.95 0 4.05.4 5.5 1.5 1.35-.85 3.8-1.5 5.5-1.5 1.65 0 3.35.3 4.75 1.05.1.05.15.05.25.05.25 0 .5-.25.5-.5V6c-.6-.45-1.25-.75-2-1zm0 13.5c-1.1-.35-2.3-.5-3.5-.5-1.7 0-4.15.65-5.5 1.5V8c1.35-.85 3.8-1.5 5.5-1.5 1.2 0 2.4.15 3.5.5v11.5z"/></svg></div><div class="mc-info"><div class="mc-t">Study Mode</div><div class="mc-d">Questions with answers. Learn the material at your own pace.</div></div><div class="mc-arr">›</div></div>
+<div class="mc" onclick="startExam()"><div class="mc-icon mc-q"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg></div><div class="mc-info"><div class="mc-t">Quiz Mode</div><div class="mc-d">Multiple choice questions. Test your knowledge and get scored.</div></div><div class="mc-arr">›</div></div>
+</div>
+<button class="btn-back" onclick="goBack()">← Back</button>
+</div></div>
+
+<!-- Study Page -->
+<div class="qp" id="sp">
+<div class="qc">
+<div class="qh">
+<div class="hrow"><div class="htitle">Study Mode</div><div class="einfo"><svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg><span id="sBadge">#</span><button class="bl" onclick="logout()">Logout</button></div></div>
+<div class="pi"><span>Progress</span><span id="sProg">0 / 119 (0%)</span></div>
+<div class="pb"><div class="pf" id="sFill"></div></div>
+<div class="ctrl"><button class="btn btn-p" id="filterBtn" onclick="toggleFilter()"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 18h4v-2h-4v2zM3 6v2h18V6H3zm3 7h12v-2H6v2z"/></svg>Show Wrong (0)</button></div>
+</div>
+<div id="sQC"></div>
+<div class="btally">Marked wrong: <strong id="tallyC">0</strong></div>
+</div></div>
+
+<!-- Exam Page -->
+<div class="qp" id="ep">
+<div class="qc">
+<div class="qh">
+<div class="hrow"><div class="htitle">Quiz Mode</div><div class="einfo"><svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg><span id="eBadge">#</span><button class="bl" onclick="logout()">Logout</button></div></div>
+<div class="pi"><span>Answered</span><span id="eProg">0 / 120</span></div>
+<div class="pb"><div class="pf" id="eFill"></div></div>
+</div>
+<div id="eQC"></div>
+<div id="sBar" class="sbar" style="display:none"><span class="sbar-t" id="sBarT">0 / 120 answered</span><button class="btn-sub" id="subBtn" onclick="submitExam()">Submit Exam</button></div>
+</div></div>
+
+<script>
+        const questions = [
+  {q: "Who is responsible to ensure the safety of this vehicle?", a: "The operator"},
+  {q: "Circle check – what do you do?", a: "airport sticker, beacon lights, signals, check FOD that might be on the car, and condition of the car to make sure it's safe to drive "},
+  {q: "What would you do if you found a problem with the vehicle?", a: "report to your supervisor"},
+  {q: "What happens to all the speeds during low visibility?", a: "Speed is reduced by 50%. "},
+  {q: "How should you drive during bad weather condition?", a: "Drive to conditions."},
+  {q: "What angle do you always enter and exit the corner?", a: "90 degree"},
+  {q: "Who gets the right of way? The main corridor or the connecting corridor?", a: "Connecting corridor has right of way."},
+  {q: "Why does the connecting corridor have right of way?", a: "to make sure aircrafts keep moving without delay"},
+  {q: "What do you do if there's an emergency vehicle approaching?", a: "come to a slow stop and put your flashers on."},
+  {q: "What do you do if snow plow equipment or marshalling crew are approaching?", a: "Safely get out of the way. go to the side of the road."},
+  {q: "Can you drive between the marshal and the aircraft?", a: "Absolutely not"},
+  {q: "Can you stop inside the infield tunnel when driving?", a: "No. you can stop inside the infield tunnel if you find FOD or if there is other emergencies"},
+  {q: "Which lane in the infield tunnel is reserved for passing?", a: "Left lane"},
+  {q: "What is FOD?", a: "Foreign Object Debris"},
+  {q: "What do you do if you find FOD?", a: "If you can pick it up, then do that. if you cant, report it to non emergency operation number at 416-776-3055"},
+  {q: "What are the emergency numbers?", a: "Airport Emergency Line for things like fire, injury, accidents that have to be addrtessed right away (serious stuff), you call 416-776-3033\n\nFor NON emergency situations such as FOD you cant pick or maintenance issues you call the Airport Non emergency Operation line at: 416-776-3055"},
+  {q: "What are ALL the pushback indications?", a: "- Bridge retracted\n- tug and towbar connected\n- doors closed\n- chocks removed, \n- doors are closed\n- wing walkers and marshals are in place\n- the service equipment are cleared\n- the anti collision light and the engine are both on\n"},
+  {q: "What are ALL the arrival indications?", a: "- marshals and wing walkers in place \n- service equipment are staged\n- Equipment are cleared to allow for safe aircraft docking, \n- The advanced visual docking guidance system (AVDGS) may also be activated. this electronic screen will show information about the flight arriving. "},
+  {q: "What do you wait for after aircraft parks before driving behind it?", a: "Wait for anti-collision light and engine lights to be off. "},
+  {q: "Name all the four taxi ways?", a: "Alpha in the east in front of T1 and T3 and runs north to south\nEcho in the west directly across from Alpha and runs north to south\nDelta in the south and runs east to west\nJuliet in the north and runs east to west\n"},
+  {q: "What are examples of Alpha Taxiway entrances?", a: "For Alpha, just remember 'Dufferin Employees Fix Great Things Just KLM.\n\n- Alpha Delta\n- Alpha Echo\n- Alpha Fox\n- Alpha Golf\n- Alpha Tango\n- Alpha Juliet\n- Alpha Kilo\n -Alpha Lima\n- Alpha Mike"},
+  {q: "Give me the entrances on the Juliet Taxiway.", a: "Juliet  in the north has 3 entrances. \nthey are CDE.\n\nThink of phrase Cat's Don't Exist\n\n- Juliet Charlie\n- Juliet Delta\n- Juliet Echo."},
+  {q: "What are examples of Delta Taxiway entrances?", a: "Remember the phrase Pat Quinn Ruins Toronto Victories.\n\n- Delta Papa\n- Delta Quebec\n- Delta Romeo\n- Delta Tango\n- Delta Victor"},
+  {q: "What are examples of Echo Taxiway entrances?", a: "Remember the phrase You Bad Ass\n\n- Echo Yankee\n- Echo Bravo\n- Echo Alpha."},
+  {q: "List all escort rules", a: "- the escort needs purple/RAIC pass and an AVOP. \n- the escort has to give a briefing. \n- all cars move like one unit. this means no one can stop if the escort is going even at stop signs \n - escort is responsible for everybody. \n- You can take max 3 cars\n- the 3 cars cant no more than 50 m long\n - Everybody uses 4 ways. \n\n\n- and the person  getting escorted needs to have a temp pass, valid driver licence and his flashers on when driving\n\n"},
+  {q: "Define movement area", a: "Movement area is anywhere that an aircraft moves on the ground which consist of the taxi way, the run way and the apron."},
+  {q: "how many baggage carts maximum are you allowed to pull?", a: "maximum 6"},
+  {q: "Define manoeuvring area", a: "Manoeuvring area is anywhere that's controlled by the air traffic control. these are the Taxiway and the Runway.\n\nTo help you remember, think of the air traffic control as 'the man'  who controls the manoeuvring area. \nmanoeuvring has the word 'man' in it. "},
+  {q: "When is ATC clearance required?", a: "ATC or Air Traffic Control needs to give permission if you need to go to Taxiway or the Runway. This is also the manoeuvring area."},
+  {q: "What do location signs look like and what do they tell you?", a: "Location signs have a black background with yellow letters and they tell you where you are at that moment.\n\nLocation signs have black background. to remember this, remember that Location and Black both have the letter L in them. \n\nso Location = Black background. "},
+  {q: "What do direction signs look like and what do they tell you?", a: "Directional signs have yellow background with black writing and they tell you where what's ahead/coming up. "},
+  {q: "What do mandatory hold signs look like and when do you see them?", a: "Mandatory hold sign have red background, white letters. \n\nthese signs are installed on taxiways right before the taxiway meets the runway. their purpose is to warn/stop you from going into the runway. "},
+  {q: "Describe the four lines at mandatory hold position", a: "mandatory hold position has a total of four yellow lines, two of them solid and the other two are dashed/broken. they go across the taxiway. these lines are about 60 meters from the edge of the runway. "},
+  {q: "How many meters are mandatory hold lines from the runway?", a: "60 meters away from the runway."},
+  {q: "What's the name of the double yellow line on the side of the taxiway?", a: "These lines are called taxi side stripe marking or the TSSM (Taxi Side Stripe Marking). They are two solid yellow lines painted at the edge of the taxiway to tell drivers and pilots where the load bearing area of the taxiway is. "},
+  {q: "tell me areas you are not allowed to park in", a: "- loading docks \n- 3 meter from fire hydrant\n- in front of emergency exits\n- 1 meter from main security fences\n- In front of bus bays\n- On the rolling stock staging lanes"},
+  {q: "What are the security booth numbers and locations?", a: "- 328 (near North fire hall)\n- 332 near Vista cargo in the East\n- 314 & 315 in the South side near convair drive\n- 409 on the west side near air traffic control "},
+  {q: "How many NPSV checkpoints are there?", a: "Five NPSV checkpoints total\n\nOne at the east side near T3 Satelite\none at the south east near Hotel gates/Delta Victor (near DCC's T1 laydown is)\nOne at security gate 314 in the south\nTwo on the west side, near Air Traffic Control"},
+  {q: "What are the names of the tunnel cells?", a: "There are two tunnel cells. The north and the south cell."},
+  {q: "What is not allowed in the tunnel?", a: "you can't take two things inside the tunnel.\n\nfirst, more than 480 litre of fuel\n\nsecond, anything that not packaged properly to delivered to a plane. In other words, If it's not safe to take on a plane, its not safe to take inside the tunnel. "},
+  {q: "What are the tunnel safety features?", a: "-Sensors on the ground\n-blue sensors\n-digital monitors\n-security camera\n-vents\n- emergency doors\n- blue lights near the doors\n- fire extinguishers\n- alarm stations like pull alarms\n-intercom phone system\n"},
+  {q: "Can you drive under the bridge?", a: "no you cannot drive under the bridges"},
+  {q: "How far must you park from the fire hydrant?", a: "3 meters"},
+  {q: "How far from the primary security fence must you be?", a: "1 meter"},
+  {q: "What does the passenger path look like?", a: "white or green lines that look like a ladder. "},
+  {q: "Can you park on passenger path?", a: "No you cant park on them but you can drive on them only if there are no aircrafts at the gate or no passengers using them."},
+  {q: "When can you drive on passenger path lines?", a: "You can only drive on passenger path lines when there's no aircraft on the gate and there's no people using the passenger path lines."},
+  {q: "What are rolling stock staging lanes?", a: "Rolling stock staging lanes are white lines that are within the safety lines on the apron.  We're not allowed to park on them, and their purpose is for operation or baggage staging and luggage staging."},
+  {q: "What are wig wags (runway guard lights)?", a: "They are flashing amber lights at mandatory hold positions where there's the mandatory hold lines and the mandatory signs.\n\nthink of mandatory hold position of that place you never wanna be at. this is where the taxiway meets the runway. the goal of the wig wags, mandatory hold lines (the 4 yellow lines) and the mandatory hold signs (the red background white letter sign) is to get your attention to stop and not end up on the runway."},
+  {q: "How do you go from Terminal 3 to Terminal 1?", a: "The best way to go from Terminal 3 to Terminal 1 or Terminal 1 to Terminal 3 is to take the outer parameter corridor and then come inside the terminal."},
+  {q: "Which corridor should you try to use as much as possible?", a: "The outer corridor. "},
+  {q: "Can you shortcut across the horseshoe?", a: "No absolutely not"},
+  {q: "What are mandatory stop lines?", a: "Stop markings at the end of the horseshoe before a driver can go on a connecting corridor. Must stop"},
+  {q: "Where's FedEx?", a: "West side, north of T3 Bay Hangars. "},
+  {q: "Where's vista cargo?", a: "East side next to 332"},
+  {q: "Where is IFC?", a: "it stands for infield concourse. It's in the middle of the air field, west of Echo taxiway and right beside Gate 500. "},
+  {q: "Where's three bay hangar?", a: "west side right in front of T3 satellite, and north of the de-icing facility"},
+  {q: "Describe obstruction lights and their purpose?", a: "Obstruction lights are red lights used to warn you there is an obstruction like construction zone or work being done"},
+  {q: "There are two types of lights at intersections. What are they?", a: "Amber and Red."},
+  {q: "What color are runway edge lights?", a: "White"},
+  {q: "What color are taxiway edge lights?", a: "Blue"},
+  {q: "What color are apron edge lights?", a: "Blue"},
+  {q: "Centre line lights of apron and taxiway is what color:", a: "Green"},
+  {q: "What color are centreline lights?", a: "Green"},
+  {q: "Where's Delta taxiway?", a: "The south side. perpendicular to Alpha & Echo, parralel to Juliet. "},
+  {q: "What lights at taxiway/apron intersection?", a: "Double Amber."},
+  {q: "What lights at taxiway/road intersection?", a: "Red"},
+  {q: "At the intersection of taxiway and runway, what color light do you see?", a: "Flashing amber (wig wags)"},
+  {q: "What is AVDGS?", a: "Advanced Visual Docking Guidance System, It's a monitor that is at a gate shows information about the  aircraft going  to arrive.\n\nYou have the VDGS (visual docking guidance systems) which is the system that guide the aircraft to their gate. The AVDGS is the advanced VDGS. the difference is that AVDGS also has a digital screen to show info. "},
+  {q: "Are you allowed to park inside red equipment restraint lines?", a: "Yes, you are allowed to park inside the red lines that define the equipment restraint lines but you must stay within your vehicle."},
+  {q: "What is the Equipment Restraint Line?", a: "Equipment restraint lines are red single lines that identify the aircraft gating area. In other words, these lines identify where the aircraft can go when it's docking and wants to go in the gate."},
+  {q: "Where is North Fire Hall situated?", a: "The north side. it is green roof, 5 bay hall South of general north aviation area, next to the North Wildlife building, and across from Sky charter. "},
+  {q: "What is the lead-in line?", a: "Lead-in line is the bright yellow line on the apron at the gate that guides aircraft to parking position."},
+  {q: "Where's Bombardier?", a: "Gray building in northwest corner near the Juliet Charlie taxiway.  west of the FedEx building."},
+  {q: "What's the facility right south of T3 Bay Hangar?", a: "The de-icing facility."},
+  {q: "How are Infield gates numbered?", a: "They are numbered in 500s"},
+  {q: "Where is the South Fire Hall?", a: "in the south side front of the GTA busing facility."},
+  {q: "What are terminal service roads?", a: "Terminal service roads are roads within the terminal buildings. So they are inside terminal buildings.  they are used by the workers to bring in luggage in and out.\n\nThese are at all the 3 gates, Pier A, Pier B, Pier C of T3 and the four piers of T1, Pier D, E, F, and G.\n\n"},
+  {q: "When can you use terminal service roads?", a: "Only when required for your job."},
+  {q: "Are you allowed to drive under passenger bridges?", a: "No, absolutely not. Driving under bridges are strictly prohibited."},
+  {q: "Can you park in red hatch areas?", a: "No. You are not allowed to park on red hatchet marks. You can drive thru but cant park on them. "},
+  {q: "What areas have red hatches?", a: "Fire hydrants, Emergency exits"},
+  {q: "What is the apron safety line for?", a: "Apron safety lines  show an area  that's safe for parking  vehicles and for  staging of equipment for short-term purposes. Short term parking, short term staging. "},
+  {q: "Where do you find apron safety lines?", a: "Apron safety lines are found on the apron, and on the right side of the planes at R1 or R2 when entering from the tail of stand. They are for short term parking and staging area"},
+  {q: "Can you park between apron safety lines?", a: "Yes. You can park between apron safety lines for short term. "},
+  {q: "What does GSE Parking Spots stand for", a: "GSE stands for Ground Service Equipment. and Ground Service Equipment Parking Spots are spots on the apron that are for tenant-specific parking. "},
+  {q: "What is a GSE box?", a: "White checkered box with teeth. Tenant equipment parking. Ground service equipment parking spots are located within the apron and they are checkered white teeth mark lines. They are tenant-specific designated parking spots."},
+  {q: "What are Designated white boxes?", a: "Designated white boxes are spots or areas on the apron that are designated parking spots for specific types of vehicles or equipment on the apron."},
+  {q: "How are GSE checkered parking boxes different from designated white box parking spots?", a: "Designated white boxes are reserved for specific equipment or vehicles that are operating on the apron. Whereas GSE parking spots are reserved for specific companies that can park there. so GSE is for specific companies and Designated white boxes are for certain equipment that are used on the apron."},
+  {q: "Can you drive on red hatchet marks?", a: "You can drive on red hatchet marks, but very cautiously and carefully. You cant park on the red hatchet marks. "},
+  {q: "What priority do marshallers and wing walkers have?", a: "Same priority as an aircraft. Marshallers and wing walkers have the same right-of-way as aircraft."},
+  {q: "Who has the right of way over everyone?", a: "The aircraft, then the marshaling crew"},
+  {q: "What are some of the indications an aircraft may be going to arrive on a gate?", a: "Wind walkers and marshals are in position\nEquipment is staged. \nThe area is cleared for the aircraft to dock, \nand the electronic guiding system may be activated at the gate."},
+  {q: "What is aircraft stand marking?", a: "This is the yellow/black triangle at the end of the lead in line to guide the aircrafts to the gate and to where they can park.  "},
+  {q: "What is aircraft stand taxilane?", a: "The aircraft stand taxilane is the taxilane that the aircraft must travel on to get in and out of the apron and taxiway. These are the yellow lines on the apron that the aircraft have to get or leave their gate. "},
+  {q: "How much distance do you need to be from an aircraft to avoid jet blast?", a: "The distance of two aircrafts. So 600 feet for a large air craft, 450 for a medium aircraft, And 200 for a small aircraft"},
+  {q: "If we're in a big hurry, can we take a short cut across the Horseshoe?", a: "No absolutely not"},
+  {q: "What other areas other than the bridges would have red hatches?", a: "Fire hydrants, Emergency exits"},
+  {q: "What gate numbers are at each terminal?", a: "Terminal 3 gates are alpha numerical, Terminal 1 gates are numbered, 100s and 200s. FedEx is 600, and IFC is 500."},
+  {q: "How are the edge lights on the taxi way different from the edge lights on the runway?", a: "The taxi way edge lights are blue and the run way edge lights are white"},
+  {q: "What's the abbreviation for ATC?", a: "Air Traffic Control"},
+  {q: "What vehicle speed is allowed in the vehicle corridor?", a: "40 km. "},
+  {q: "Speed limit on the terminal service road?", a: "10"},
+  {q: "Speed limit on Head of Stand?", a: "20"},
+  {q: "Speed limit on Tail of Stand?", a: "40"},
+  {q: "Speed limit on north and south service roads?", a: "50."},
+  {q: "Speed limit in tunnel?", a: "50"},
+  {q: "Speed limit in low visibility conditions?", a: "reduce speed by half in low vis times. "},
+  {q: "In what area, does the speed limit reduce to 5 km?", a: "within 6 meter of an aircraft or in congested areas speed limit is 10. \n\nbut if its low visibility period, then you have to reduce that to half so 5 km.\n\n"},
+  {q: "What is the speed on the open apron?", a: "25"},
+  {q: "What is the speed limit at general aviation north apron?", a: "25. "},
+  {q: "What is the speed limit outside the vehicle corridor (on the open apron)?", a: "25. Basically when they ask speed limit in open apron, its always 25. "},
+  {q: "What is the speed limit at Terminal Access Corridors?", a: "20. This is that small roads under terminal buildings that allow you to take a safe short cut and drive under the piers to go from one side of the piers to the other instead of driving around the entire pier. You can only go on this road if your job requires it."},
+  {q: "What roads have speed limit of 40?", a: "the vehicle corridor road"},
+  {q: "How do you properly park a vehicle airside/on the apron?", a: "Park the vehicle inside the white lines, then face out, put it in park, pull the park break and shut the vehicle. "},
+  {q: "When do you wear a safety vest?", a: "Anytime you are outside of your vehicle"},
+  {q: "Put the order of right of way for vehicles", a: "1- aircraft always first, \n2- then emergency vehicle when responding to a call, \n3- maintenance vehicle when working, \n4- the vehicle in the connecting corridor, \n5- the vehicle behind yield line\n6- the vehicle behind stop sign"},
+  {q: "Where is T3 Satellite?", a: "It's on the east side right next to Pier A in terminal 3. "},
+  {q: "When can you safely pass another vehicle?", a: "You can only pass if the vehicle being passed is traveling less than 15 km, One vehicle at a time, Passing within speed limit, You are never allowed to pass a bus"},
+];
+
+const mcqs = [
+{q:"During a circle check, which of the following should you inspect?",o:["Airport sticker, beacon lights, signals, FOD, vehicle condition","Tire pressure, oil level, windshield wipers only","Fuel level and engine temperature only","Interior cleanliness and seat adjustment"],a:0,e:"A circle check includes checking the airport sticker, beacon lights, signals, FOD on or around the vehicle, and the overall condition of the vehicle to ensure it's safe to drive."},
+{q:"Who is responsible for ensuring the safety of the vehicle you are operating?",o:["Your supervisor","The vehicle owner","The operator","The safety department"],a:2,e:"The operator of the vehicle is always responsible for ensuring its safety."},
+{q:"You find a mechanical problem during your circle check. What should you do?",o:["Fix it yourself if possible","Report it to your supervisor","Continue driving and report later","Call the airport emergency line"],a:1,e:"If you find a problem during a circle check, report it to your supervisor immediately."},
+{q:"What is the speed limit on the vehicle corridor?",o:["25 km/h","30 km/h","40 km/h","50 km/h"],a:2,e:"The speed limit on the vehicle corridor is 40 km/h."},
+{q:"What is the maximum speed allowed on the open apron?",o:["20 km/h","25 km/h","30 km/h","40 km/h"],a:1,e:"The speed limit on the open apron is always 25 km/h."},
+{q:"What is the normal speed limit within 6 metres of an aircraft?",o:["5 km/h","10 km/h","15 km/h","20 km/h"],a:1,e:"Within 6 metres of an aircraft, the speed limit is 10 km/h. During low visibility, this drops to 5 km/h."},
+{q:"What is the speed limit at the Head of Stand?",o:["10 km/h","20 km/h","25 km/h","40 km/h"],a:1,e:"The speed limit at the Head of Stand is 20 km/h."},
+{q:"What is the speed limit on the North and South service roads?",o:["25 km/h","40 km/h","50 km/h","60 km/h"],a:2,e:"The speed limit on the North and South service roads is 50 km/h."},
+{q:"During low visibility conditions, what happens to all speed limits?",o:["They stay the same","Reduced by 25%","Reduced by 50%","All driving is prohibited"],a:2,e:"During low visibility, all speed limits are reduced by 50%."},
+{q:"How should you drive during bad weather conditions?",o:["At the posted speed limit","Drive to conditions","Pull over and wait","Only drive on service roads"],a:1,e:"During bad weather, you must drive to conditions."},
+{q:"At what angle should you always enter and exit a corridor?",o:["45 degrees","60 degrees","90 degrees","Any angle is fine"],a:2,e:"You must always enter and exit corridors at a 90-degree angle."},
+{q:"At an intersection, which has right of way — main corridor or connecting corridor?",o:["The main corridor","The connecting corridor","Whichever arrived first","The larger vehicle"],a:1,e:"The connecting corridor has right of way to ensure aircraft keep moving without delay."},
+{q:"Why does the connecting corridor have right of way?",o:["It has more traffic","To keep aircraft moving without interruption","It's a wider road","Connecting corridors are one-way"],a:1,e:"The connecting corridor has priority so aircraft movements are not interrupted or delayed."},
+{q:"An emergency vehicle with lights on is approaching. What do you do?",o:["Speed up to get out of the way","Maintain speed and stay in lane","Come to a slow stop and put four-way flashers on","Pull onto the apron"],a:2,e:"Come to a slow stop and put your four-way flashers on."},
+{q:"Snow plow equipment is approaching. What should you do?",o:["Flash your headlights","Come to a stop with flashers on","Safely get out of the way by moving to the side","Continue at reduced speed"],a:2,e:"Safely get out of the way by moving to the side of the road."},
+{q:"Marshallers and wing walkers have the same right-of-way priority as:",o:["Emergency vehicles","Regular vehicles","Aircraft","Maintenance vehicles"],a:2,e:"Marshallers and wing walkers have the same priority as an aircraft."},
+{q:"Can you drive between a marshaller and the aircraft they are guiding?",o:["Yes, if you drive slowly","Yes, only during daylight","No, absolutely not","Yes, if waved through"],a:2,e:"You can never drive between a marshaller and the aircraft."},
+{q:"What does FOD stand for?",o:["Foreign Object Debris","Field Operations Department","Flight Operations Directive","Fuel On Deck"],a:0,e:"FOD stands for Foreign Object Debris."},
+{q:"You find FOD that is too heavy to pick up. What do you do?",o:["Leave it and continue","Push it aside with your vehicle","Call Non-Emergency Operations at 416-776-3055","Call Emergency Line at 416-776-3033"],a:2,e:"Report it to the Non-Emergency Operations Line at 416-776-3055."},
+{q:"What is the airport Non-Emergency Operations phone number?",o:["416-776-3033","416-776-3055","416-776-3000","911"],a:1,e:"Non-Emergency is 416-776-3055. Emergency (fire, injury, serious accidents) is 416-776-3033."},
+{q:"Which of the following is NOT a pushback indication?",o:["Bridge retracted","Chocks removed","Passenger boarding bridge extended","Anti-collision light and engine on"],a:2,e:"During pushback the bridge is retracted, not extended."},
+{q:"Which of the following IS a pushback indication?",o:["Passengers still boarding","Tug and towbar connected, doors closed","AVDGS screen activated","Equipment being staged"],a:1,e:"Tug and towbar connected with doors closed is a pushback indication."},
+{q:"Before driving behind a parked aircraft, what must you wait for?",o:["Bridge to be connected","Anti-collision light and engine to be off","A marshaller to wave you through","The fuel truck to leave"],a:1,e:"Wait for the anti-collision light and engine to be off."},
+{q:"Which of the following is an arrival indication?",o:["Chocks removed","Bridge retracted","Marshals in position and equipment staged","Tug and towbar connected"],a:2,e:"Arrival indications include marshals in position and equipment staged."},
+{q:"Which taxiway runs north-south on the east side of the airport?",o:["Delta","Juliet","Alpha","Echo"],a:2,e:"Alpha is on the east side running north-south. Echo is on the west side."},
+{q:"Which taxiway runs east-west on the south side?",o:["Alpha","Echo","Juliet","Delta"],a:3,e:"Delta is on the south side running east-west. Juliet is on the north side."},
+{q:"Which of the following is NOT an entrance on Alpha Taxiway?",o:["Alpha Fox","Alpha Golf","Alpha Charlie","Alpha Kilo"],a:2,e:"Alpha Charlie is not an Alpha entrance."},
+{q:"Juliet Charlie, Juliet Delta, and Juliet Echo are entrances to which taxiway?",o:["Alpha","Delta","Echo","Juliet"],a:3,e:"These are the three entrances to Juliet taxiway in the north."},
+{q:"Which of the following is a Delta Taxiway entrance?",o:["Delta Alpha","Delta Romeo","Delta Juliet","Delta Fox"],a:1,e:"Delta entrances include Papa, Quebec, Romeo, Tango, and Victor."},
+{q:"When escorting vehicles airside, what is the maximum number of vehicles you can escort?",o:["2","3","4","5"],a:1,e:"Maximum 3 vehicles, total convoy cannot exceed 50 metres."},
+{q:"Which is an escort rule?",o:["Escorted vehicles can stop independently","Escort can take up to 5 vehicles","All vehicles must use four-way flashers","Escorted person needs no ID"],a:2,e:"All vehicles must use four-way flashers. Convoy moves as one unit."},
+{q:"The movement area consists of which parts of the airport?",o:["Taxiway and runway only","Taxiway, runway, and apron","Apron and terminal service roads","Vehicle corridors and service roads"],a:1,e:"Movement area = taxiway + runway + apron."},
+{q:"The manoeuvring area includes which areas?",o:["Taxiway and runway","Taxiway, runway, and apron","Apron only","All airside roads"],a:0,e:"Manoeuvring area = taxiway + runway only (controlled by ATC)."},
+{q:"When do you need ATC clearance?",o:["Anytime you drive airside","When entering the apron","When entering the taxiway or runway","When driving on service roads"],a:2,e:"ATC clearance is required for taxiway or runway (manoeuvring area)."},
+{q:"A location sign has which color combination?",o:["Yellow background, black letters","Red background, white letters","Black background, yellow letters","Green background, white letters"],a:2,e:"Location signs: black background, yellow letters. They tell you where you ARE."},
+{q:"What information does a location sign provide?",o:["What's ahead of you","Where you currently are","Where to park","Speed limit for the area"],a:1,e:"A location sign tells you your current position."},
+{q:"A direction sign has which color combination?",o:["Black background, yellow letters","Yellow background, black letters","Red background, white letters","White background, black letters"],a:1,e:"Direction signs: yellow background, black letters. They tell you what's AHEAD."},
+{q:"What information does a direction sign provide?",o:["Your current location","What's ahead or coming up","Mandatory hold position","Emergency exit location"],a:1,e:"Direction signs tell you what's ahead."},
+{q:"A mandatory hold sign has which color combination?",o:["Black background, yellow letters","Yellow background, black letters","Red background, white letters","Orange background, black letters"],a:2,e:"Mandatory hold signs: red background, white letters."},
+{q:"If you see a red mandatory hold sign, what area are you approaching?",o:["The apron","A vehicle corridor","A runway","A terminal service road"],a:2,e:"Mandatory hold signs warn you that you are approaching a runway."},
+{q:"How many yellow lines make up the mandatory hold position markings?",o:["Two — both solid","Two — both dashed","Four — two solid and two dashed","Six — alternating"],a:2,e:"Four yellow lines: two solid and two dashed, approximately 60m from runway edge."},
+{q:"How far are mandatory hold lines from the runway edge?",o:["30 metres","45 metres","60 metres","90 metres"],a:2,e:"Mandatory hold lines are approximately 60 metres from the runway edge."},
+{q:"What is the TSSM?",o:["Single white dashed centre line","Two solid yellow lines on taxiway edge","Red line marking equipment area","Green dashed lines on apron"],a:1,e:"TSSM = Taxi Side Stripe Marking: two solid yellow lines at taxiway edge showing load-bearing area."},
+{q:"What color are runway edge lights?",o:["Blue","Green","White","Amber"],a:2,e:"Runway edge lights are white. Taxiway/apron edge lights are blue."},
+{q:"What color are taxiway edge lights?",o:["White","Blue","Green","Red"],a:1,e:"Taxiway edge lights are blue."},
+{q:"What color are apron edge lights?",o:["White","Green","Amber","Blue"],a:3,e:"Apron edge lights are blue, same as taxiway edge lights."},
+{q:"At a taxiway/apron intersection, what color are the lights?",o:["Red","Flashing amber","Double amber","Green"],a:2,e:"Taxiway/apron intersection: double amber lights."},
+{q:"At a taxiway/road intersection, what color are the lights?",o:["Amber","Blue","Green","Red"],a:3,e:"Taxiway/road intersection: red lights."},
+{q:"What color are obstruction lights?",o:["Amber","Blue","Red","White"],a:2,e:"Obstruction lights are red, warning of construction or work areas."},
+{q:"Runway guard lights (wig wags) are what color?",o:["Red","White","Blue","Flashing amber"],a:3,e:"Wig wags are flashing amber at mandatory hold positions near runways."},
+{q:"What color are centreline lights on taxiways and aprons?",o:["White","Blue","Amber","Green"],a:3,e:"Centreline lights on taxiways and aprons are green."},
+{q:"Terminal 1 gates are numbered in which series?",o:["Alpha-numerical","100s and 200s","300s and 400s","500s and 600s"],a:1,e:"Terminal 1 gates: 100s and 200s. Terminal 3: alpha-numerical."},
+{q:"Terminal 3 gates use what numbering system?",o:["100s and 200s","300s and 400s","500s","Alpha-numerical"],a:3,e:"Terminal 3: alpha-numerical. Terminal 1: 100s and 200s."},
+{q:"Infield Concourse (IFC) gates are numbered in which series?",o:["100s","300s","500s","700s"],a:2,e:"IFC gates: 500s. FedEx: 600s."},
+{q:"What gate numbers does FedEx use?",o:["400s","500s","600s","700s"],a:2,e:"FedEx: 600s. IFC: 500s."},
+{q:"Which is NOT allowed in the infield tunnel?",o:["Vehicles under 480L of fuel","More than 480 litres of fuel","Properly packaged cargo","Vehicles with beacon lights on"],a:1,e:"No more than 480L of fuel, and nothing not properly packaged for air transport."},
+{q:"What are the names of the two infield tunnel cells?",o:["East and West","Upper and Lower","North and South","Cell A and Cell B"],a:2,e:"The two tunnel cells are North and South."},
+{q:"Which is a tunnel safety feature?",o:["Speed cameras","Intercom phone system","Traffic lights","Rumble strips"],a:1,e:"Tunnel features include sensors, monitors, cameras, vents, emergency doors, fire extinguishers, alarms, and intercom."},
+{q:"Which is NOT a tunnel safety feature?",o:["Fire extinguishers","Emergency doors","Speed bumps","Alarm stations"],a:2,e:"Speed bumps are not a tunnel safety feature."},
+{q:"What does an apron safety line indicate?",o:["Aircraft parking position","Area safe for short-term parking and staging","A no-parking zone","Runway boundary"],a:1,e:"Apron safety lines show areas safe for short-term vehicle parking and equipment staging."},
+{q:"What is the purpose of Equipment Restraint Lines?",o:["Mark short-term parking","Identify where aircraft can go when docking at a gate","Show vehicle corridor boundary","Indicate fuel storage"],a:1,e:"Equipment restraint lines (red) identify the aircraft gating area."},
+{q:"What does a GSE parking box look like?",o:["Solid red rectangle","White checkered box with teeth markings","Yellow dashed lines","Blue solid square"],a:1,e:"GSE boxes are white checkered with teeth-like markings."},
+{q:"What is a GSE parking box used for?",o:["Any vehicle can park","Parking for specific tenant companies","Emergency vehicles only","Temporary fuel storage"],a:1,e:"GSE spots are reserved for specific companies (tenants) on the apron."},
+{q:"What is the lead-in line?",o:["White dashed line on vehicle corridor","Bright yellow line guiding aircraft to parking position","Red line marking emergency exits","Blue line at tunnel entrance"],a:1,e:"The lead-in line is the bright yellow line on the apron that guides aircraft to their parking position."},
+{q:"What is the aircraft stand marking?",o:["Red circle at gate","Yellow/black triangle at end of lead-in line","White square on apron","Green arrow at gate"],a:1,e:"Aircraft stand marking: yellow/black triangle at the end of the lead-in line."},
+{q:"On red hatchet markings, what are you allowed to do?",o:["Park for short periods","Drive through carefully but not park","Neither drive nor park","Park if you stay in vehicle"],a:1,e:"You can drive through red hatchet markings carefully, but you cannot park on them."},
+{q:"Besides under bridges, where else are red hatch markings found?",o:["Gate entrances","Near fire hydrants and emergency exits","On vehicle corridor","At security checkpoints"],a:1,e:"Red hatches are near fire hydrants and emergency exits, plus under bridges."},
+{q:"Can you drive under passenger bridges?",o:["Yes, at reduced speed","Yes, if no passengers crossing","No, absolutely not","Only during emergencies"],a:2,e:"Driving under passenger bridges is strictly prohibited."},
+{q:"How far must you park from a fire hydrant?",o:["1 metre","2 metres","3 metres","5 metres"],a:2,e:"You must park at least 3 metres from a fire hydrant."},
+{q:"How far from the primary security fence must you park?",o:["1 metre","2 metres","3 metres","5 metres"],a:0,e:"You must park at least 1 metre from the security fence."},
+{q:"What do passenger path lines look like?",o:["Red dashed lines","Solid yellow lines","White or green lines like a ladder","Blue dotted lines"],a:2,e:"Passenger path lines are white or green and look like a ladder pattern."},
+{q:"When can you drive over passenger path lines?",o:["Anytime if slow","No aircraft at gate and no passengers using them","Only at night","Never"],a:1,e:"Only when no aircraft at the gate and no passengers are using them."},
+{q:"When are you allowed to use terminal service roads?",o:["Anytime for a shortcut","Only when required for your job","Only during shift changes","Always off limits"],a:1,e:"Terminal service roads: only when required for your job."},
+{q:"Can you shortcut across the apron where there are no corridors?",o:["Yes, if clear","Yes, at reduced speed","No, absolutely not","Only during low-traffic"],a:2,e:"No shortcuts across the apron. Always use designated corridors."},
+{q:"Which corridor should you try to use as much as possible?",o:["Inner corridor","Connecting corridor","Outer corridor","Terminal access corridor"],a:2,e:"Use the outer corridor as much as possible."},
+{q:"What is the correct order of right-of-way? (highest to lowest)",o:["Emergency → Aircraft → Connecting → Maintenance","Aircraft → Emergency → Maintenance → Connecting corridor","Aircraft → Connecting → Emergency → Maintenance","Emergency → Aircraft → Maintenance → Connecting"],a:1,e:"Order: Aircraft → Emergency vehicle → Maintenance vehicle → Connecting corridor → Yield line → Stop sign."},
+{q:"What is the speed limit on terminal service roads?",o:["5 km/h","10 km/h","15 km/h","20 km/h"],a:1,e:"Terminal service road speed limit is 10 km/h."},
+{q:"What is the speed limit in the infield tunnel?",o:["25 km/h","40 km/h","50 km/h","60 km/h"],a:2,e:"Tunnel speed limit is 50 km/h."},
+{q:"During low visibility, what is the speed within 6m of an aircraft?",o:["5 km/h","10 km/h","15 km/h","20 km/h"],a:0,e:"Normally 10 km/h near aircraft. Low vis halves it to 5 km/h."},
+{q:"What is the speed limit at Terminal Access Corridors?",o:["10 km/h","20 km/h","25 km/h","40 km/h"],a:1,e:"Terminal Access Corridors: 20 km/h."},
+{q:"How should you properly park a vehicle on the apron?",o:["Anywhere inside white lines, facing in, engine running","Inside white lines, facing out, in park, brake on, engine off","Nearest flat surface with flashers on","Inside red lines, facing terminal"],a:1,e:"Inside white lines, facing out, in park, parking brake on, engine off."},
+{q:"When must you wear a safety vest airside?",o:["Only when dark","Only near runways","Anytime you are outside your vehicle","Only during low visibility"],a:2,e:"Safety vest required anytime you are outside your vehicle."},
+{q:"When can you safely pass another vehicle airside?",o:["Anytime with signal","Vehicle going <15 km/h, one at a time, within speed limit, never pass a bus","Only on vehicle corridor","Only with ATC permission"],a:1,e:"Pass only if other vehicle <15 km/h, one at a time, within speed limit, never pass a bus."},
+{q:"Maximum number of baggage carts you can pull?",o:["3","4","6","8"],a:2,e:"Maximum 6 baggage carts."},
+{q:"Where is FedEx located?",o:["East side near Vista Cargo","South side near Delta","West side, north of T3 Bay Hangars","North side near fire hall"],a:2,e:"FedEx is on the west side, north of T3 Bay Hangars."},
+{q:"What is the AVDGS?",o:["Automated Vehicle Dispatch and Guidance System","Advanced Visual Docking Guidance System","Airport Vehicle Driver's General Standards","Airfield Visual Direction and Ground Signals"],a:1,e:"AVDGS = Advanced Visual Docking Guidance System. Digital screen at the gate for arriving aircraft info."},
+{q:"You are parked inside equipment restraint lines. Is this allowed?",o:["No, never","Yes, but stay in your vehicle","Yes, for up to 30 minutes","Only with marshaller present"],a:1,e:"You can park inside equipment restraint lines but must stay in your vehicle."},
+{q:"How many NPSV checkpoints are there?",o:["Three","Four","Five","Six"],a:2,e:"Five NPSV checkpoints total."},
+{q:"What do wig wag lights at a mandatory hold position warn you about?",o:["Active construction zone","You are approaching a runway — do not proceed","Vehicle corridor intersection ahead","Aircraft parking at nearby gate"],a:1,e:"Wig wags warn you that you are at the runway boundary. Do not proceed."},
+{q:"Can you shortcut across the horseshoe, even in a hurry?",o:["Yes, if apron clear","Yes, during non-peak","No, absolutely not","Only emergency vehicles"],a:2,e:"Never shortcut across the horseshoe."},
+{q:"What is the difference between GSE boxes and designated white boxes?",o:["No difference","GSE = specific tenant companies; White boxes = specific equipment types","GSE are larger","GSE are temporary"],a:1,e:"GSE = specific companies. White boxes = specific equipment types."},
+{q:"The Tail of Stand has what speed limit?",o:["20 km/h","25 km/h","40 km/h","50 km/h"],a:2,e:"Tail of Stand: 40 km/h. Head of Stand: 20 km/h."},
+{q:"You see blue edge lights on both sides. You could be on a:",o:["Runway","Taxiway or apron","Vehicle corridor","Terminal service road"],a:1,e:"Blue edge lights = taxiway or apron. Runway edge lights are white."},
+{q:"Which is NOT a prohibited parking area?",o:["Loading docks","Within 3m of fire hydrant","Between apron safety lines","In front of emergency exits"],a:2,e:"You CAN park between apron safety lines for short-term. The others are all prohibited."},
+{q:"What are rolling stock staging lanes used for?",o:["Short-term vehicle parking","Baggage and luggage staging","Emergency vehicle access","Passenger walkways"],a:1,e:"Rolling stock staging lanes are for operation, baggage, and luggage staging. No parking."},
+{q:"Which lane in the infield tunnel is for passing?",o:["Right lane","Left lane","No passing allowed","Centre lane"],a:1,e:"The left lane is reserved for passing in the tunnel."},
+{q:"You are driving on a surface with green centreline lights. This tells you the surface is a:",o:["Runway","Vehicle corridor","Taxiway or apron","Terminal service road"],a:2,e:"Green centreline lights are found on taxiways and aprons."},
+{q:"What does ATC stand for?",o:["Airport Transportation Command","Air Traffic Control","Airfield Transit Corridor","Aviation Technical Centre"],a:1,e:"ATC = Air Traffic Control. They control the manoeuvring area (taxiway and runway)."},
+{q:"Echo Taxiway is located on which side of the airport?",o:["East","West","North","South"],a:1,e:"Echo is on the west side running north-south. Alpha is on the east side."},
+{q:"Which of the following is an Echo Taxiway entrance?",o:["Echo Charlie","Echo Delta","Echo Bravo","Echo Fox"],a:2,e:"Echo entrances: Echo Yankee, Echo Bravo, Echo Alpha."},
+{q:"The escort is responsible for everyone in the convoy. How long can the total convoy be?",o:["25 metres","50 metres","75 metres","100 metres"],a:1,e:"Maximum convoy length is 50 metres with up to 3 vehicles."},
+{q:"What does the escorted person need to have?",o:["AVOP and RAIC pass","Temp pass, valid driver's licence, and flashers on","Only a valid driver's licence","Nothing — the escort handles everything"],a:1,e:"The escorted person needs a temp pass, valid driver's licence, and must drive with flashers on."},
+{q:"To avoid jet blast from a large aircraft, how far should you be?",o:["200 feet","450 feet","600 feet","1000 feet"],a:2,e:"Jet blast safe distance: 600 feet (large), 450 feet (medium), 200 feet (small)."},
+{q:"What is the airport Emergency Line number?",o:["416-776-3055","416-776-3033","416-776-3000","911"],a:1,e:"Emergency Line (fire, injury, serious accidents): 416-776-3033. Non-Emergency: 416-776-3055."},
+{q:"Which of the following vehicles can you NEVER pass?",o:["Maintenance vehicles","Fuel trucks","Buses","Baggage carts"],a:2,e:"You are never allowed to pass a bus."},
+{q:"What is the speed limit at the General Aviation North Apron?",o:["10 km/h","20 km/h","25 km/h","40 km/h"],a:2,e:"General Aviation North Apron speed limit is 25 km/h — same as open apron."},
+{q:"What is the speed limit at Tail of Stand during low visibility?",o:["10 km/h","15 km/h","20 km/h","25 km/h"],a:2,e:"Tail of Stand is normally 40 km/h. Low visibility halves it to 20 km/h."},
+{q:"What must the escort have before escorting vehicles airside?",o:["Only a valid licence","Purple/RAIC pass and an AVOP","A temporary pass","Only a safety vest"],a:1,e:"The escort needs a purple/RAIC pass and an AVOP, and must give a briefing."},
+{q:"How should you travel between Terminal 3 and Terminal 1?",o:["Cut across the apron","Take the inner corridor","Take the outer corridor then come inside","Drive through terminal service road"],a:2,e:"Take the outer perimeter corridor and then come inside the terminal."},
+{q:"What are mandatory stop lines?",o:["Lines at runway entrance","Stop markings at end of horseshoe before connecting corridors","Painted arrows on apron","Lines at security checkpoints"],a:1,e:"Mandatory stop lines are at the end of the horseshoe before entering a connecting corridor."},
+{q:"Can you park on rolling stock staging lanes?",o:["Yes, for short term","Yes, if you stay in vehicle","No, they are for baggage and luggage staging only","Yes, during off-peak"],a:2,e:"No parking on rolling stock staging lanes. They are for baggage/luggage staging only."},
+{q:"Where is the Infield Concourse (IFC) located?",o:["East side near T3 Satellite","Middle of airfield, west of Echo taxiway","South side near Delta","North side near Juliet"],a:1,e:"IFC is in the middle of the airfield, west of Echo taxiway, beside Gate 500."},
+{q:"What does the TSSM tell you about the taxiway?",o:["Where to park","Where the load-bearing area is","The speed limit","The taxiway name"],a:1,e:"TSSM shows where the load-bearing area of the taxiway is."},
+{q:"Designated white boxes on the apron are reserved for:",o:["Any vehicle","Specific equipment or vehicle types on the apron","Specific tenant companies","Emergency vehicles only"],a:1,e:"White boxes = specific equipment types. GSE boxes = specific companies."},
+{q:"Black background with yellow letters is what type of sign?",o:["Direction sign","Mandatory hold sign","Location sign","Speed limit sign"],a:2,e:"Black background + yellow letters = location sign (where you ARE)."},
+{q:"Yellow background with black letters is what type of sign?",o:["Location sign","Mandatory hold sign","Direction sign","Warning sign"],a:2,e:"Yellow background + black letters = direction sign (what is AHEAD)."},
+{q:"Can you stop inside the infield tunnel while driving?",o:["Yes, anytime","No, unless FOD or emergency","Yes, to let vehicles pass","No, never"],a:1,e:"No stopping in the tunnel unless you find FOD or there is an emergency."},
+{q:"Security booth 409 is located where?",o:["East side","South side","West side near ATC","North side near fire hall"],a:2,e:"Booth 409 is on the west side near Air Traffic Control."},
+{q:"Maximum fuel allowed through the infield tunnel?",o:["240 litres","360 litres","480 litres","600 litres"],a:2,e:"Maximum 480 litres of fuel."},
+{q:"Where is Vista Cargo located?",o:["West side near FedEx","North side near fire hall","East side next to booth 332","South side near Delta"],a:2,e:"Vista Cargo is on the east side, next to security booth 332."},
+];
+
+let curEmp=null, shuffQ=[], filterOn=false, examAnswers=[], examSubmitted=false, shuffMCQ=[];
+
+function shuffle(a){const s=[...a];for(let i=s.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[s[i],s[j]]=[s[j],s[i]]}return s}
+
+// Debounced save
+let saveTimer=null;
+function debounceSave(){clearTimeout(saveTimer);saveTimer=setTimeout(saveProgress,800)}
+
+// Navigation
+function goP2(){
+  const inp=document.getElementById('empNum');
+  const v=inp.value.trim();
+  if(!/^\d{5}$/.test(v)){document.getElementById('ee').classList.add('vis');inp.classList.add('err');return}
+  document.getElementById('ee').classList.remove('vis');inp.classList.remove('err');
+  curEmp=v;
+  document.getElementById('p1').style.display='none';
+  document.getElementById('p2').style.display='flex';
+}
+function goBack(){document.getElementById('p2').style.display='none';document.getElementById('p1').style.display='flex'}
+
+function startStudy(){
+  document.getElementById('sBadge').textContent='#'+curEmp;
+  const saved=localStorage.getItem('da_s_'+curEmp);
+  if(saved){const d=JSON.parse(saved);shuffQ=d.shuffledQuestions;loadProgress(d)}
+  else{shuffQ=shuffle(questions);renderStudy()}
+  document.getElementById('p2').style.display='none';
+  document.getElementById('sp').classList.add('active');
+}
+
+function startExam(){
+  document.getElementById('eBadge').textContent='#'+curEmp;
+  examAnswers=new Array(mcqs.length).fill(-1);
+  examSubmitted=false;
+  shuffMCQ=shuffle(mcqs);
+  renderExam();
+  document.getElementById('p2').style.display='none';
+  document.getElementById('ep').classList.add('active');
+  document.getElementById('sBar').style.display='flex';
+  updateExamProgress();
+}
+
+function logout(){
+  if(!confirm('Logout? Your study progress is saved.'))return;
+  curEmp=null;
+  document.getElementById('sp').classList.remove('active');
+  document.getElementById('ep').classList.remove('active');
+  document.getElementById('sBar').style.display='none';
+  document.getElementById('p1').style.display='flex';
+  document.getElementById('empNum').value='';
+}
+
+// ============ STUDY MODE ============
+function renderStudy(){
+  const c=document.getElementById('sQC');c.innerHTML='';
+  shuffQ.forEach((item,i)=>{
+    const d=document.createElement('div');d.className='sc';d.dataset.index=i;
+    d.innerHTML=`<div class="qnum">QUESTION ${i+1} OF ${questions.length}</div>
+<div class="qtxt">${item.q}</div>
+<textarea class="ainp" placeholder="Type your answer here..."></textarea>
+<div class="cbtns">
+<button class="cb rb" onclick="toggleReveal(${i})"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>Show Answer</button>
+<button class="cb mb" onclick="toggleMark(${i})"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>Got It Wrong</button>
+</div>
+<div class="ca"><strong>Correct Answer</strong><div class="atxt">${item.a}</div></div>`;
+    c.appendChild(d);
+  });
+}
+
+function toggleReveal(i){
+  const card=document.querySelectorAll('.sc')[i];
+  const ans=card.querySelector('.ca');const btn=card.querySelector('.rb');
+  ans.classList.toggle('show');
+  btn.innerHTML=ans.classList.contains('show')?'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"/></svg>Hide Answer':'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>Show Answer';
+  debounceSave();
+}
+
+function toggleMark(i){
+  const card=document.querySelectorAll('.sc')[i];const btn=card.querySelector('.mb');
+  card.classList.toggle('mw');btn.classList.toggle('mk');
+  btn.innerHTML=card.classList.contains('mw')?'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg>Unmark':'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>Got It Wrong';
+  updateStudyProgress();debounceSave();
+}
+
+function toggleFilter(){
+  filterOn=!filterOn;
+  document.querySelectorAll('.sc').forEach(c=>{c.style.display=filterOn?(c.classList.contains('mw')?'block':'none'):'block'});
+  updateStudyProgress();
+}
+
+function updateStudyProgress(){
+  const mk=document.querySelectorAll('.sc.mw').length;
+  const ans=Array.from(document.querySelectorAll('.ainp')).filter(x=>x.value.trim()).length;
+  const pct=Math.round((ans/questions.length)*100);
+  document.getElementById('sProg').textContent=`${ans} / ${questions.length} (${pct}%)`;
+  document.getElementById('sFill').style.width=pct+'%';
+  document.getElementById('tallyC').textContent=mk;
+  const fb=document.getElementById('filterBtn');
+  fb.innerHTML=filterOn?`<svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 18h4v-2h-4v2zM3 6v2h18V6H3zm3 7h12v-2H6v2z"/></svg>Show All (${mk} marked)`:`<svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 18h4v-2h-4v2zM3 6v2h18V6H3zm3 7h12v-2H6v2z"/></svg>Show Wrong (${mk})`;
+}
+
+function saveProgress(){
+  if(!curEmp)return;
+  const cards=document.querySelectorAll('.sc');
+  const p={shuffledQuestions:shuffQ,state:Array.from(cards).map(c=>({answer:c.querySelector('.ainp').value,revealed:c.querySelector('.ca').classList.contains('show'),marked:c.classList.contains('mw')}))};
+  localStorage.setItem('da_s_'+curEmp,JSON.stringify(p));
+}
+
+function loadProgress(d){
+  renderStudy();
+  setTimeout(()=>{
+    const cards=document.querySelectorAll('.sc');
+    d.state.forEach((s,i)=>{
+      const c=cards[i],inp=c.querySelector('.ainp'),ans=c.querySelector('.ca'),rb=c.querySelector('.rb'),mb=c.querySelector('.mb');
+      inp.value=s.answer||'';
+      if(s.revealed){ans.classList.add('show');rb.innerHTML='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"/></svg>Hide Answer'}
+      if(s.marked){c.classList.add('mw');mb.classList.add('mk');mb.innerHTML='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg>Unmark'}
+    });
+    updateStudyProgress();
+  },100);
+}
+
+document.addEventListener('input',e=>{if(e.target.classList.contains('ainp')){updateStudyProgress();debounceSave()}});
+
+// ============ EXAM MODE ============
+const letters=['A','B','C','D'];
+
+function renderExam(){
+  const c=document.getElementById('eQC');c.innerHTML='';
+  shuffMCQ.forEach((item,i)=>{
+    const d=document.createElement('div');d.className='mcqc';d.id='mcq'+i;
+    let optsHtml=item.o.map((opt,j)=>`<div class="mcqo" onclick="pickAnswer(${i},${j})" id="mcq${i}o${j}"><div class="mcql">${letters[j]}</div><div>${opt}</div></div>`).join('');
+    d.innerHTML=`<div class="qnum">QUESTION ${i+1} OF ${shuffMCQ.length}</div><div class="qtxt">${item.q}</div><div class="mcqopts">${optsHtml}</div><div class="mcqexp" id="mcqexp${i}"></div>`;
+    c.appendChild(d);
+  });
+}
+
+function pickAnswer(qi,oi){
+  if(examSubmitted)return;
+  examAnswers[qi]=oi;
+  const opts=document.querySelectorAll(`#mcq${qi} .mcqo`);
+  opts.forEach((o,j)=>{o.classList.toggle('sel',j===oi);o.querySelector('.mcql').textContent=letters[j]});
+  document.getElementById('mcq'+qi).classList.add('ans');
+  updateExamProgress();
+}
+
+function updateExamProgress(){
+  const answered=examAnswers.filter(a=>a>=0).length;
+  const total=shuffMCQ.length;
+  document.getElementById('eProg').textContent=`${answered} / ${total}`;
+  document.getElementById('eFill').style.width=((answered/total)*100)+'%';
+  document.getElementById('sBarT').textContent=`${answered} / ${total} answered`;
+}
+
+function submitExam(){
+  const answered=examAnswers.filter(a=>a>=0).length;
+  if(answered<shuffMCQ.length){
+    if(!confirm(`You've answered ${answered} of ${shuffMCQ.length} questions. Unanswered questions will be marked wrong. Submit anyway?`))return;
+  }
+  examSubmitted=true;
+  document.getElementById('sBar').style.display='none';
+
+  // Score
+  let correct=0;
+  shuffMCQ.forEach((item,i)=>{if(examAnswers[i]===item.a)correct++});
+  const pct=Math.round((correct/shuffMCQ.length)*100);
+  const pass=pct>=70;
+
+  // Build score screen
+  const scoreHtml=`<div class="sscrn">
+<div class="scirc ${pass?'pass':'fail'}"><div class="spct">${pct}%</div><div class="slbl">${pass?'Passed':'Keep Studying'}</div></div>
+<div class="sdet">You got <strong>${correct}</strong> out of <strong>${shuffMCQ.length}</strong> correct</div>
+<div class="smsg">${pass?'Great work! Review the questions below to reinforce your knowledge.':'Review the wrong answers below, then go back to Study Mode to review the material.'}</div>
+<div class="sbtns">
+<button class="btn btn-p" onclick="retakeExam()"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>Retake Quiz</button>
+<button class="btn" style="background:var(--lg);color:var(--t2);border:2px solid var(--bg)" onclick="backToMenu()">← Back to Menu</button>
+</div></div>
+<div class="rdiv">Review All Questions</div>`;
+
+  // Build review
+  let reviewHtml='';
+  shuffMCQ.forEach((item,i)=>{
+    const picked=examAnswers[i];
+    const isCorrect=picked===item.a;
+    let optsHtml=item.o.map((opt,j)=>{
+      let cls='mcqo ';
+      if(j===picked&&isCorrect)cls+='cp';
+      else if(j===picked&&!isCorrect)cls+='wp';
+      else if(j===item.a&&!isCorrect)cls+='cnp';
+      else cls+='rd';
+      return `<div class="${cls}"><div class="mcql">${letters[j]}</div><div>${opt}</div></div>`;
+    }).join('');
+    const expCls=isCorrect?'mcqexp show ce':'mcqexp show we';
+    const expLabel=isCorrect?'<strong>✓ Correct</strong>':'<strong>✗ Wrong — '+letters[item.a]+' is correct</strong>';
+    reviewHtml+=`<div class="mcqc"><div class="qnum">QUESTION ${i+1}</div><div class="qtxt">${item.q}</div><div class="mcqopts">${optsHtml}</div><div class="${expCls}">${expLabel}${item.e}</div></div>`;
+  });
+
+  // Replace exam header
+  document.querySelector('#ep .qh').innerHTML=`<div class="hrow"><div class="htitle">Quiz Results</div><div class="einfo"><svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg><span>#${curEmp}</span></div></div>`;
+  document.getElementById('eQC').innerHTML=scoreHtml+reviewHtml;
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function retakeExam(){
+  examAnswers=new Array(mcqs.length).fill(-1);
+  examSubmitted=false;
+  shuffMCQ=shuffle(mcqs);
+  // Restore header
+  document.querySelector('#ep .qh').innerHTML=`<div class="hrow"><div class="htitle">Quiz Mode</div><div class="einfo"><svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg><span id="eBadge2">#${curEmp}</span><button class="bl" onclick="logout()">Logout</button></div></div><div class="pi"><span>Answered</span><span id="eProg">0 / ${shuffMCQ.length}</span></div><div class="pb"><div class="pf" id="eFill"></div></div>`;
+  renderExam();
+  document.getElementById('sBar').style.display='flex';
+  updateExamProgress();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function backToMenu(){
+  document.getElementById('ep').classList.remove('active');
+  document.getElementById('sBar').style.display='none';
+  document.getElementById('p2').style.display='flex';
+  // Restore header for next time
+  document.querySelector('#ep .qh').innerHTML=`<div class="hrow"><div class="htitle">Quiz Mode</div><div class="einfo"><svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg><span id="eBadge">#</span><button class="bl" onclick="logout()">Logout</button></div></div><div class="pi"><span>Answered</span><span id="eProg">0 / 120</span></div><div class="pb"><div class="pf" id="eFill"></div></div>`;
+}
+</script>
+</body>
+</html>
